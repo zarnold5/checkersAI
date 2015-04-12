@@ -1,4 +1,3 @@
-
 ;;;; -*- Mode: Lisp; Syntax: Common-Lisp -*-
 ;;;; Code from Paradigms of AI Programming
 ;;;; Copyright (c) 1991 Peter Norvig
@@ -24,7 +23,7 @@
 
 (deftype piece () `(integer ,empty ,outer))
 
-(defun name-of (piece) (char ".@O?" piece))
+(defun name-of (piece) (char ".rb?" piece))
 
 (defun opponent (player) (if (eql player black) red black))
 
@@ -63,7 +62,32 @@
                            :initial-element outer)))
     (dolist (square all-squares)
       (setf (bref board square) empty))
-    (setf (bref board 11) black ) board))
+    (setf (bref board 11) black 
+	  (bref board 13) black 
+	  (bref board 15) black 
+	  (bref board 17) black 
+	  (bref board 22) black 
+	  (bref board 24) black 
+	  (bref board 26) black 
+	  (bref board 28) black 
+	  (bref board 31) black 
+	  (bref board 33) black 
+	  (bref board 35) black
+	  (bref board 37) black
+
+	  (bref board 61) red 
+	  (bref board 63) red 
+	  (bref board 65) red 
+	  (bref board 67) red 
+	  (bref board 72) red 
+	  (bref board 74) red 
+	  (bref board 76) red 
+	  (bref board 78) red 
+	  (bref board 81) red 
+	  (bref board 83) red 
+	  (bref board 85) red
+	  (bref board 87) red
+    )board))
     
 
 (defun count-difference (player board)
