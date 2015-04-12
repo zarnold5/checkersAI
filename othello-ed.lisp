@@ -15,7 +15,7 @@
                        xlist))
            ylist))
 
-(defconstant all-directions '(-11 -10 -9 -1 1 9 10 11))
+(defconstant all-directions '(-11 -9 9 11))
 
 (defconstant empty 0 "An empty square")
 (defconstant black 1 "A black piece")
@@ -78,9 +78,10 @@
 (defun legal-p (move player board)
   "A Legal move must be into an empty square, and it must
   flip at least one opponent piece."
-  (and (eql (bref board move) empty)
-       (some #'(lambda (dir) (would-flip? move player board dir))
-             all-directions)))
+  (and (eql (bref board move) empty) (is-diag move board))
+  ;;(and (eql (bref board move) empty)
+   ;;    (some #'(lambda (dir) (would-flip? move player board dir))
+    ;;         all-directions)))
 
 (defun make-move (move player board)
   "Update board to reflect move by player"

@@ -1,2 +1,2 @@
 (load "auxfns")
-(load "othello-edTest1")
+(load "othello-ed")
