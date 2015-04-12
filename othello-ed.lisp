@@ -63,7 +63,7 @@
                            :initial-element outer)))
     (dolist (square all-squares)
       (setf (bref board square) empty))
-    (setf (bref board 44) red ) board))
+    (setf (bref board 11) black ) board))
     
 
 (defun count-difference (player board)
@@ -314,7 +314,7 @@
                 &optional (print t) (minutes 30))
   "Play a game of othello.  Return the score, where a positive
   difference means black, the first player, wins."
-  (let ((board (initial-board))
+  (let ((board (initial-checkers-board))
         (clock (make-array (+ 1 (max black red))
                            :initial-element 
                            (* minutes 60 
@@ -333,7 +333,7 @@
       (count-difference black board))))
 
 (defvar *clock* (make-array 3) "A copy of the game clock")
-(defvar *board* (initial-board) "A copy of the game board")
+(defvar *board* (initial-checkers-board) "A copy of the game board")
 
 (defun get-move (strategy player board print clock)
   "Call the player's strategy function to get a move.
@@ -449,4 +449,53 @@
 (defun mobility (player board)
   "The number of moves a player has."
   (length (legal-moves player board)))
+
+;;; ********************************************
+
+(defun println (str) (princ str) (terpri))
+
+(terpri)
+(println "**********************")
+(println "   TESTING BEGINS")
+(println "**********************")
+(terpri)
+
+(println "Let's play some abbreviated games of Othello tracing the computer's strategy")
+(println "We will start by playing against the random selection strategy.") 
+(println "Enter a move of: resign to terminate the game.")
+(terpri)
+
+(debug2 :othello)
+(othello #'human #'random-strategy)
+(read-line)(terpri)
+
+
+(println "Now let's play human against maximizer strategy/count-difference eval.") 
+(println "Enter a move of: resign to terminate the game.")
+(terpri)
+(othello #'human (maximizer #'count-difference))
+(read-line)(terpri)
+
+(println "Now let's play human against minimax strategy/count-difference eval.") 
+(println "Enter a move of: resign to terminate the game.")
+(terpri)
+(othello #'human (minimax-searcher 3 #'count-difference))
+(read-line)(terpri)
+
+(println "Finally we play human against alpha-beta strategy/count-difference eval.") 
+(println "Enter a move of: resign to terminate the game.")
+(terpri)
+(othello #'human (alpha-beta-searcher 3 #'count-difference))
+(read-line)(terpri)
+
+(undebug)
+
+
+(terpri)
+(println "**********************")
+(println "   TESTING ENDED")
+(println "**********************")
+(terpri)
+
+
 
