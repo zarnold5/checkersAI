@@ -1,3 +1,4 @@
+
 ;;;; -*- Mode: Lisp; Syntax: Common-Lisp -*-
 ;;;; Code from Paradigms of AI Programming
 ;;;; Copyright (c) 1991 Peter Norvig
@@ -18,14 +19,14 @@
 
 (defconstant empty 0 "An empty square")
 (defconstant black 1 "A black piece")
-(defconstant white 2 "A white piece")
+(defconstant red 2 "A red piece")
 (defconstant outer 3 "Marks squares outside the 8x8 board")
 
 (deftype piece () `(integer ,empty ,outer))
 
 (defun name-of (piece) (char ".@O?" piece))
 
-(defun opponent (player) (if (eql player black) white black))
+(defun opponent (player) (if (eql player black) red black))
 
 (deftype board () '(simple-array piece (100)))
 
@@ -48,9 +49,22 @@
                            :initial-element outer)))
     (dolist (square all-squares)
       (setf (bref board square) empty))
-    (setf (bref board 44) white   (bref board 45) black
-          (bref board 54) black   (bref board 55) white)
+    (setf (bref board 44) red   (bref board 45) black
+          (bref board 54) black   (bref board 55) red)
     board))
+
+
+(defun initial-checkers-board ()
+  "Return a board, empty with all checkers in starting positions"
+  ;; Boards are 100-element vectors, with elements 11-88 used,
+  ;; and the others marked with the sentinel OUTER.  Initially
+  ;; all the pieces are in their starting positions
+  (let ((board (make-array 100 :element-type 'piece
+                           :initial-element outer)))
+    (dolist (square all-squares)
+      (setf (bref board square) empty))
+    (setf (bref board 44) red ) board))
+    
 
 (defun count-difference (player board)
   "Count player's pieces minus opponent's pieces."
@@ -301,7 +315,7 @@
   "Play a game of othello.  Return the score, where a positive
   difference means black, the first player, wins."
   (let ((board (initial-board))
-        (clock (make-array (+ 1 (max black white))
+        (clock (make-array (+ 1 (max black red))
                            :initial-element 
                            (* minutes 60 
                               internal-time-units-per-second))))
@@ -352,7 +366,7 @@
   ;; First print the header and the current score
   (format t "~2&    a b c d e f g h   [~c=~2a ~c=~2a (~@d)]"
           (name-of black) (count black board)
-          (name-of white) (count white board)
+          (name-of red) (count red board)
           (count-difference black board))
   ;; Print the board itself
   (loop for row from 1 to 8 do
@@ -364,7 +378,7 @@
   (when clock
     (format t "  [~c=~a ~c=~a]~2&"
             (name-of black) (time-string (elt clock black))
-            (name-of white) (time-string (elt clock white)))))
+            (name-of red) (time-string (elt clock red)))))
 
 (defun time-string (time)
   "Return a string representing this internal time in min:secs."
