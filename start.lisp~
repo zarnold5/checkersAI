@@ -1,0 +1,2 @@
+(load "auxfns")
+(load "othello-esTest1")
