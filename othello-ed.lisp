@@ -78,18 +78,18 @@
 	  (bref board 35) black
 	  (bref board 37) black
 
-	  (bref board 61) red 
-	  (bref board 63) red 
-	  (bref board 65) red 
-	  (bref board 67) red 
-	  (bref board 72) red 
-	  (bref board 74) red 
-	  (bref board 76) red 
-	  (bref board 78) red 
-	  (bref board 81) red 
-	  (bref board 83) red 
-	  (bref board 85) red
-	  (bref board 87) red
+	  (bref board 62) red 
+	  (bref board 64) red 
+	  (bref board 66) red 
+	  (bref board 68) red 
+	  (bref board 71) red 
+	  (bref board 73) red 
+	  (bref board 75) red 
+	  (bref board 77) red 
+	  (bref board 82) red 
+	  (bref board 84) red 
+	  (bref board 86) red
+	  (bref board 88) red
     )board))
 
 
