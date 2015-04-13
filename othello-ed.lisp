@@ -21,9 +21,12 @@
 (defconstant red 2 "A red piece")
 (defconstant outer 3 "Marks squares outside the 8x8 board")
 
+(defvar black-pieces '(11 13 15 17 22 24 26 28 31 33 35 37))
+(defvar red-pieces '(61 63 65 67 72 74 76 78 81 83 85 87))
+
 (deftype piece () `(integer ,empty ,outer))
 
-(defun name-of (piece) (char ".rb?" piece))
+(defun name-of (piece) (char ".br?" piece))
 
 (defun opponent (player) (if (eql player black) red black))
 
@@ -88,7 +91,8 @@
 	  (bref board 85) red
 	  (bref board 87) red
     )board))
-    
+
+
 
 (defun count-difference (player board)
   "Count player's pieces minus opponent's pieces."
@@ -102,8 +106,8 @@
 (defun legal-p (move player board)
   "A Legal move must be into an empty square, and it must
   flip at least one opponent piece."
-  (and (eql (bref board move) empty) (is-diag move board))
-  ;;(and (eql (bref board move) empty)
+  ;(and (eql (bref board move) empty) (is-diag move board)))
+  (and (eql (bref board move) empty) t))
    ;;    (some #'(lambda (dir) (would-flip? move player board dir))
     ;;         all-directions)))
 
@@ -141,6 +145,7 @@
 
 (defun next-to-play (board previous-player print)
   "Compute the player to move next, or NIL if nobody can move."
+  ;(princ previous-player)
   (let ((opp (opponent previous-player)))
     (cond ((any-legal-move? opp board) opp)
           ((any-legal-move? previous-player board) 
