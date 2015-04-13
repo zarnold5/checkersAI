@@ -103,7 +103,7 @@
   "Valid moves are numbers in the range 11-88 that end in 1-8."
   (and (integerp move) (<= 11 move 88) (<= 1 (mod move 10) 8)))
 
-(defun legal-p (move player possibleSpace board)
+(defun legal-p (move possibleSpace board)
   "A Legal move must be into an empty square, and it must
   flip at least one opponent piece."
   ;(and (eql (bref board move) empty) (is-diag move board)))
