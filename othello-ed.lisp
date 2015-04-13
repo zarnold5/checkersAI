@@ -103,11 +103,11 @@
   "Valid moves are numbers in the range 11-88 that end in 1-8."
   (and (integerp move) (<= 11 move 88) (<= 1 (mod move 10) 8)))
 
-(defun legal-p (move player board)
+(defun legal-p (move player possibleSpace board)
   "A Legal move must be into an empty square, and it must
   flip at least one opponent piece."
   ;(and (eql (bref board move) empty) (is-diag move board)))
-  (and (eql (bref board move) empty) t))
+  (and (eql (bref board possibleSpace) empty)))
    ;;    (some #'(lambda (dir) (would-flip? move player board dir))
     ;;         all-directions)))
 
@@ -167,8 +167,36 @@
 (defun legal-moves (player board)
   "Returns a list of legal moves for player"
   ;;*** fix, segre, 3/30/93.  Was remove-if, which can share with all-squares.
-  (loop for move in all-squares
-	when (legal-p move player board) collect move))
+  ;;(loop for move in all-squares
+;;	when (legal-p move player board) collect move))
+  (setq temp '())
+  (if (eq player "r")
+      ;;player is red
+      (loop for piece in red-pieces
+	    do(push temp (getmoves piece player board)))
+      ;;else player is black:
+      (loop for piece in black-pieces
+	    do(push temp (getmoves piece player board)))
+))
+
+(defun getmoves (piece player board)
+  (if (eq player "r")
+      (collectmoves piece -11 9 board)
+      (collectmoves piece 11 -9 board)
+   )
+)
+
+(defun collectmoves (piece diag1 diag2 board)
+  (setq temp '())
+  (setq possibleSpace piece)
+  (loop while (valid-p possibleSpace) do
+    (progn
+    (setq possibleSpace (+ possibleSpace diag1))
+    (if (legal-p piece possibleSpace board) (push temp (cons piece possibleSpace)))
+    ))
+  temp
+)
+
 
 (defun maximize-difference (player board)
   "A strategy that maximizes the difference in pieces."
