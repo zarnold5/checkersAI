@@ -125,7 +125,6 @@
   board)
 
 (defun make-move-checkers (piece move player board)
-  (princ 111)
   (setf (bref board move) player)
   (setf (bref board piece) empty))
 
@@ -167,11 +166,13 @@
 
 (defun any-legal-move? (player board)
   "Does player have any legal moves in this position?"
-  (some #'(lambda (move) (legal-p move player board))
+  (some #'(lambda (move) (legal-p move move board))
         all-squares))
 
 (defun random-strategy (player board)
   "Make any legal move."
+  (princ "???")
+  (princ player) (terpri)
   (random-elt (legal-moves player board)))
 
 (defun legal-moves (player board)
@@ -386,6 +387,9 @@
 	(cons (h8->88 (car assoc)) (h8->88 (cdr assoc)))
 )
 
+(defun 88->h8m (assoc) 
+  (cons (88->h8 (car assoc)) (88->h8 (cdr assoc))))
+
 
 (defun handle-input (in)
   (progn
@@ -428,6 +432,7 @@
 (defvar *board* (initial-checkers-board) "A copy of the game board")
 
 (defun get-move (strategy player board print clock)
+  (princ "starting over")
   "Call the player's strategy function to get a move.
   Keep calling until a legal move is made."
   ;; Note we don't pass the strategy function the REAL board.
@@ -446,10 +451,10 @@
       ((eq move 'resign)
        (THROW 'game-over (if (eql player black) -64 64)))
       ((and (valid-pc move) (legal-p (cdr move) (cdr move) board))
-       (princ 1000)
+       
        (when print
          (format t "~&~c moves to ~a." 
-                 (name-of player) (88->h8 move)))
+                 (name-of player) (88->h8m move)))
        (make-move-checkers (car move) (cdr move) player board))
       (t (warn "Illegal move: ~a" (88->h8 move))
 	 ;(princ valid-p move) (terpri) (princ legal-p move player board)
