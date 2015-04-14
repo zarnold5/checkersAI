@@ -103,10 +103,14 @@
   "Valid moves are numbers in the range 11-88 that end in 1-8."
   (and (integerp move) (<= 11 move 88) (<= 1 (mod move 10) 8)))
 
+(defun valid-pc (move)
+  "Valid moves are numbers in the range 11-88 that end in 1-8."
+  (and (<= 11 (car move) 88)(<= 11 (cdr move))))
+
 (defun legal-p (move possibleSpace board)
   "A Legal move must be into an empty square, and it must
   flip at least one opponent piece."
-  ;(and (eql (bref board move) empty) (is-diag move board)))
+  ;(princ (bref board possibleSpace))
   (eql (bref board possibleSpace) empty))
    ;;    (some #'(lambda (dir) (would-flip? move player board dir))
     ;;         all-directions)))
@@ -114,10 +118,16 @@
 (defun make-move (move player board)
   "Update board to reflect move by player"
   ;; First make the move, then make any flips
+  (princ 2000)
   (setf (bref board move) player)
   (dolist (dir all-directions)
     (make-flips move player board dir))
   board)
+
+(defun make-move-checkers (piece move player board)
+  (princ 111)
+  (setf (bref board move) player)
+  (setf (bref board piece) empty))
 
 (defun make-flips (move player board dir)
   "Make any flips in the given direction."
@@ -435,12 +445,16 @@
        (THROW 'game-over (if (eql player black) -64 64)))
       ((eq move 'resign)
        (THROW 'game-over (if (eql player black) -64 64)))
-      ((and (valid-p move) (legal-p move player board))
+      ((and (valid-pc move) (legal-p (cdr move) (cdr move) board))
+       (princ 1000)
        (when print
          (format t "~&~c moves to ~a." 
                  (name-of player) (88->h8 move)))
-       (make-move move player board))
+       (make-move-checkers (car move) (cdr move) player board))
       (t (warn "Illegal move: ~a" (88->h8 move))
+	 ;(princ valid-p move) (terpri) (princ legal-p move player board)
+	 (princ (valid-pc move))
+	 (princ (legal-p (cdr move) player board))
          (get-move strategy player board print clock)))))
 
 (defun print-board (&optional (board *board*) clock)
