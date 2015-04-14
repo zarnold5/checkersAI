@@ -107,7 +107,7 @@
   "A Legal move must be into an empty square, and it must
   flip at least one opponent piece."
   ;(and (eql (bref board move) empty) (is-diag move board)))
-  (and (eql (bref board possibleSpace) empty)))
+  (eql (bref board possibleSpace) empty))
    ;;    (some #'(lambda (dir) (would-flip? move player board dir))
     ;;         all-directions)))
 
@@ -170,31 +170,37 @@
   ;;(loop for move in all-squares
 ;;	when (legal-p move player board) collect move))
   (setq temp '())
-  (if (eq player "r")
+  (progn
+  (if (eq player 2)
       ;;player is red
       (loop for piece in red-pieces
-	    do(push temp (getmoves piece player board)))
+	    do (let ((result (append temp (getmoves piece player board)))) (if (not (null result)) 
+									       (setq temp result))))
       ;;else player is black:
       (loop for piece in black-pieces
-	    do(push temp (getmoves piece player board)))
-))
+	    do (let ((result (append temp (getmoves piece player board)))) (if (not (null result)) 
+(setq temp result))))
+)
+(princ temp)temp)
+)
 
 (defun getmoves (piece player board)
-  (if (eq player "r")
-      (collectmoves piece -11 9 board)
-      (collectmoves piece 11 -9 board)
+  (if (eq player 2)
+      (collectmoves piece -11 -9 board)
+      (collectmoves piece 9 11 board)
    )
 )
 
 (defun collectmoves (piece diag1 diag2 board)
   (setq temp '())
   (setq possibleSpace piece)
-  (loop while (valid-p possibleSpace) do
     (progn
-    (setq possibleSpace (+ possibleSpace diag1))
-    (if (legal-p piece possibleSpace board) (push temp (cons piece possibleSpace)))
-    ))
-  temp
+    (setq possibleSpace (+ piece diag1))
+    (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() ))))
+    (setq possibleSpace (+ piece diag2))
+    (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() ))))
+    
+  temp)
 )
 
 
@@ -360,11 +366,29 @@
         (elt square-names num)
         num)))
 
+(defun apply88->h8 (assoc)
+	(if (null assoc) nil
+	    (cons (cons (88->h8 (car (car assoc))) (88->h8 (cdr (car assoc)))) (apply88->h8 (cdr assoc))))
+)
+
+(defun applyh8->88 (assoc)
+  "NEEDS WORK"
+	(cons (h8->88 (car assoc)) (h8->88 (cdr assoc)))
+)
+
+
+(defun handle-input (in)
+  (progn
+	 (princ (applyh8->88 in))
+	 (applyh8->88 in)))
+	 
+  
+
 (defun human (player board)
   "A human player for the game of Othello"
   (format t "~&~c to move ~a: " (name-of player)
-          (mapcar #'88->h8 (legal-moves player board)))
-  (h8->88 (read)))
+          (apply88->h8 (legal-moves player board)))
+   (handle-input (read)))
 
 (defvar *move-number* 1 "The number of the move to be played")
 
