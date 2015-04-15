@@ -105,7 +105,7 @@
 
 (defun valid-pc (move)
   "Valid moves are numbers in the range 11-88 that end in 1-8."
-  (and (<= 11 (car move) 88)(<= 11 (cdr move))))
+  (and (<= 11 (car move) 88)(<= 11 (cdr move) 88)))
 
 (defun legal-p (move possibleSpace board)
   "A Legal move must be into an empty square, and it must
@@ -158,6 +158,7 @@
 (defun next-to-play (board previous-player print)
   "Compute the player to move next, or NIL if nobody can move."
   ;(princ previous-player)
+  (update-pieces board)
   (let ((opp (opponent previous-player)))
     (cond ((any-legal-move? opp board) opp)
           ((any-legal-move? previous-player board) 
@@ -400,8 +401,11 @@
   (progn
 	 (princ (applyh8->88 in))
 	 (applyh8->88 in)))
-	 
-  
+
+(defun contains (ele list)
+  (cond ((null list) nil)
+	((and (eq (car ele) (caar list)) (eq (cdr ele) (cdar list))) t)
+	(t (contains ele (cdr list)))))
 
 (defun human (player board)
   "A human player for the game of Othello"
@@ -436,8 +440,19 @@
 (defvar *clock* (make-array 3) "A copy of the game clock")
 (defvar *board* (initial-checkers-board) "A copy of the game board")
 
+(defun update-pieces (board)
+  (let ((reds '()) (blacks '())) 
+    (loop for square from 11 to 88 do
+	  (if (eql (bref board square) red)
+	      (setf reds (cons square reds))
+	    (if (eql (bref board square) black)
+		(setf blacks (cons square blacks)))))
+    (setf black-pieces blacks)
+    (setf red-pieces reds)))
+	
+  
+
 (defun get-move (strategy player board print clock)
-  (princ "starting over")
   "Call the player's strategy function to get a move.
   Keep calling until a legal move is made."
   ;; Note we don't pass the strategy function the REAL board.
@@ -455,11 +470,12 @@
        (THROW 'game-over (if (eql player black) -64 64)))
       ((eq move 'resign)
        (THROW 'game-over (if (eql player black) -64 64)))
-      ((and (valid-pc move) (legal-p (cdr move) (cdr move) board))
+      ((and (and (valid-pc move) (legal-p (cdr move) (cdr move) board)) (contains move (legal-moves player board)))
        
        (when print
          (format t "~&~c moves to ~a." 
                  (name-of player) (88->h8m move)))
+       ;(update-pieces)
        (make-move-checkers (car move) (cdr move) player board))
       (t (warn "Illegal move: ~a" (88->h8 move))
 	 ;(princ valid-p move) (terpri) (princ legal-p move player board)
