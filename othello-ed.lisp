@@ -22,7 +22,7 @@
 (defconstant outer 3 "Marks squares outside the 8x8 board")
 
 (defvar black-pieces '(11 13 15 17 22 24 26 28 31 33 35 37))
-(defvar red-pieces '(61 63 65 67 72 74 76 78 81 83 85 87))
+(defvar red-pieces '(62 64 66 68 71 73 75 77 82 84 86 88))
 
 (deftype piece () `(integer ,empty ,outer))
 
@@ -126,7 +126,10 @@
 
 (defun make-move-checkers (piece move player board)
   (setf (bref board move) player)
-  (setf (bref board piece) empty))
+  (setf (bref board piece) empty)
+  
+
+)
 
 (defun make-flips (move player board dir)
   "Make any flips in the given direction."
@@ -173,7 +176,7 @@
   "Make any legal move."
   (princ "???")
   (princ player) (terpri)
-  (random-elt (legal-moves player board)))
+  (progn (terpri)(princ ":")(princ  (apply88->h8 (legal-moves player board) ))(terpri) (random-elt (legal-moves player board))))
 
 (defun legal-moves (player board)
   "Returns a list of legal moves for player"
@@ -185,14 +188,16 @@
   (if (eq player 2)
       ;;player is red
       (loop for piece in red-pieces
-	    do (let ((result (append temp (getmoves piece player board)))) (if (not (null result)) 
-									       (setq temp result))))
+	    ;;do (let ((result (append temp (getmoves piece player board)))) (if (not (null result)) 
+	    ;;(setq temp result))))
+      do (setq temp (append temp (getmoves piece player board))))
       ;;else player is black:
       (loop for piece in black-pieces
-	    do (let ((result (append temp (getmoves piece player board)))) (if (not (null result)) 
-(setq temp result))))
-)
-(princ temp)temp)
+	    ;;do (let ((result (append temp (getmoves piece player board)))) (if (not (null result)) 
+	    ;;(setq temp result))))
+      do (setq temp (append temp (getmoves piece player board))))
+      )
+  temp)
 )
 
 (defun getmoves (piece player board)
