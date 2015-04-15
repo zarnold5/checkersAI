@@ -111,7 +111,8 @@
   "A Legal move must be into an empty square, and it must
   flip at least one opponent piece."
   ;(princ (bref board possibleSpace))
-  (eql (bref board possibleSpace) empty))
+  (or (eql (bref board possibleSpace) empty)
+))
    ;;    (some #'(lambda (dir) (would-flip? move player board dir))
     ;;         all-directions)))
 
@@ -125,11 +126,9 @@
   board)
 
 (defun make-move-checkers (piece move player board)
-  (setf (bref board move) player)
-  (setf (bref board piece) empty)
-  
-
-)
+  (if (> (abs (- piece move)) 11)
+      (progn (setf (bref board move) player) (setf (bref board piece) empty)(setf (bref board (+ piece (/ (- move piece) 2))) empty))
+    (progn (setf (bref board move) player) (setf (bref board piece) empty))))
 
 (defun make-flips (move player board dir)
   "Make any flips in the given direction."
@@ -203,21 +202,38 @@
 
 (defun getmoves (piece player board)
   (if (eq player 2)
-      (collectmoves piece -11 -9 board)
-      (collectmoves piece 9 11 board)
+      (collectmoves piece -11 -9 board player)
+      (collectmoves piece 9 11 board player)
    )
 )
 
-(defun collectmoves (piece diag1 diag2 board)
+(defun collectmoves (piece diag1 diag2 board player)
   (setq temp '())
   (setq possibleSpace piece)
+
+
     (progn
     (setq possibleSpace (+ piece diag1))
-    (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() ))))
+    (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() )))
+      ;;not empty right in front check next space!
+      (if (eq (bref board possibleSpace) (opponent player)) 
+(progn 
+(setq possibleSpace (+ possibleSpace diag1)) 
+(if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() ))))
+      )))
+
+
     (setq possibleSpace (+ piece diag2))
-    (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() ))))
+    (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() )))
+;;not first space
+(if (eq (bref board possibleSpace) (opponent player))
+(progn 
+ (princ (bref board possibleSpace)) (princ (opponent player))
+(setq possibleSpace (+ possibleSpace diag2)) 
+(if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() ))))
+))))
     
-  temp)
+  temp
 )
 
 
@@ -588,6 +604,7 @@
 (terpri)
 
 (debug2 :othello)
+;;(othello #'random-strategy #'random-strategy)
 (othello #'human #'random-strategy)
 (read-line)(terpri)
 
