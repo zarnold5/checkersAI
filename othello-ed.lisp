@@ -220,6 +220,14 @@
   temp)
 )
 
+(defun extra-jumps (origin loc jumps diag1 diag2 board player)
+  (cond 
+   ((and (legal-p piece (+ loc (* 2 diag1)) board) (eq (bref board (+ loc diag1)) (opponent player)))
+    (extra-jumps origin (+ loc (* 2 diag1)) (cons (cons origin (+ loc (* 2 diag1))) jumps) diag1 diag2 board player))
+   ((and (legal-p piece (+ loc (* 2 diag2)) board) (eq (bref board (+ loc diag2)) (opponent player)))
+    (extra-jumps origin (+ loc (* 2 diag2)) (cons (cons origin (+ loc (* 2 diag2))) jumps) diag1 diag2 board player))
+   (t (jumps))))
+  
 
 (defun maximize-difference (player board)
   "A strategy that maximizes the difference in pieces."
