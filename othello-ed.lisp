@@ -604,7 +604,7 @@
 (terpri)
 
 (debug2 :othello)
-;;(othello #'random-strategy #'random-strategy)
+(othello #'random-strategy #'random-strategy)
 (othello #'human #'random-strategy)
 (read-line)(terpri)
 
@@ -612,7 +612,7 @@
 (println "Now let's play human against maximizer strategy/count-difference eval.") 
 (println "Enter a move of: resign to terminate the game.")
 (terpri)
-(othello #'human (maximizer #'count-difference))
+(othello #'random-strategy (maximizer #'count-difference))
 (read-line)(terpri)
 
 (println "Now let's play human against minimax strategy/count-difference eval.") 
