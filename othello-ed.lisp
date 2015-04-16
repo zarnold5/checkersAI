@@ -21,8 +21,8 @@
 (defconstant red 2 "A red piece")
 (defconstant outer 3 "Marks squares outside the 8x8 board")
 
-(defvar black-pieces '(11 13 15 17 22 24 26 28 31 33 35 37))
-(defvar red-pieces '(62 64 66 68 71 73 75 77 82 84 86 88))
+;(defvar black-pieces '(11 13 15 17 22 24 26 28 31 33 35 37))
+;(defvar red-pieces '(62 64 66 68 71 73 75 77 82 84 86 88))
 
 (deftype piece () `(integer ,empty ,outer))
 
@@ -157,7 +157,7 @@
 (defun next-to-play (board previous-player print)
   "Compute the player to move next, or NIL if nobody can move."
   ;(princ previous-player)
-  (update-pieces board)
+  ;(update-pieces board)
   (let ((opp (opponent previous-player)))
     (cond ((any-legal-move? opp board) opp)
           ((any-legal-move? previous-player board) 
@@ -184,7 +184,9 @@
   ;;(loop for move in all-squares
 ;;	when (legal-p move player board) collect move))
   (setq temp '())
-  (progn
+  (let ((pieces (update-pieces board)))
+  (setq red-pieces (car pieces))
+  (setq black-pieces (cdr pieces))
   (if (eq player 2)
       ;;player is red
       (loop for piece in red-pieces
@@ -196,8 +198,8 @@
 	    ;;do (let ((result (append temp (getmoves piece player board)))) (if (not (null result)) 
 	    ;;(setq temp result))))
       do (setq temp (append temp (getmoves piece player board))))
-      )
-  temp)
+      ))
+  temp
 )
 
 (defun getmoves (piece player board)
@@ -471,8 +473,8 @@
 	      (setf reds (cons square reds))
 	    (if (eql (bref board square) black)
 		(setf blacks (cons square blacks)))))
-    (setf black-pieces blacks)
-    (setf red-pieces reds)))
+    (cons reds blacks))
+    )
 	
   
 
