@@ -96,8 +96,10 @@
 
 (defun count-difference (player board)
   "Count player's pieces minus opponent's pieces."
+  (princ (count player board))
   (- (count player board)
-     (count (opponent player) board)))
+     (count (opponent player) board))
+  (princ 205))
 
 (defun valid-p (move)
   "Valid moves are numbers in the range 11-88 that end in 1-8."
@@ -128,7 +130,8 @@
 (defun make-move-checkers (piece move player board)
   (if (> (abs (- piece move)) 11)
       (progn (setf (bref board move) player) (setf (bref board piece) empty)(setf (bref board (+ piece (/ (- move piece) 2))) empty))
-    (progn (setf (bref board move) player) (setf (bref board piece) empty))))
+    (progn (setf (bref board move) player) (setf (bref board piece) empty)))
+  board)
 
 (defun make-flips (move player board dir)
   "Make any flips in the given direction."
@@ -159,8 +162,8 @@
   ;(princ previous-player)
   ;(update-pieces board)
   (let ((opp (opponent previous-player)))
-    (cond ((any-legal-move? opp board) opp)
-          ((any-legal-move? previous-player board) 
+    (cond ((any-legal-checkers? opp board) opp)
+          ((any-legal-checkers? previous-player board) 
            (when print
              (format t "~&~c has no moves and must pass."
                      (name-of opp)))
@@ -171,6 +174,11 @@
   "Does player have any legal moves in this position?"
   (some #'(lambda (move) (legal-p move move board))
         all-squares))
+
+(defun any-legal-checkers? (player board)
+  "Does player have any legal moves in this position?"
+  (princ "any-legal-checkers?")(terpri)
+  (not (null (legal-moves player board))))
 
 (defun random-strategy (player board)
   "Make any legal move."
@@ -262,7 +270,7 @@
 				 (funcall
 				  eval-fn
 				  player
-				  (make-move move player
+				  (make-move-checkers (car move) (cdr move) player
 					     (copy-board board))))
                              moves))
              (best  (apply #'max scores)))
@@ -454,7 +462,7 @@
       (loop for *move-number* from 1
             for player = black then (next-to-play board player print)
             for strategy = (if (eql player black) 
-                               bl-strategy
+                                  bl-strategy
                                wh-strategy)
             until (null player)
             do (get-move strategy player board print clock))
@@ -614,27 +622,27 @@
 (terpri)
 
 (debug2 :othello)
-(othello #'random-strategy #'random-strategy)
-(othello #'human #'random-strategy)
+;(othello #'random-strategy #'random-strategy)
+;(othello #'human #'random-strategy)
 (read-line)(terpri)
 
 
 (println "Now let's play human against maximizer strategy/count-difference eval.") 
 (println "Enter a move of: resign to terminate the game.")
 (terpri)
-(othello #'random-strategy (maximizer #'count-difference))
+(othello #'human (maximizer #'count-difference))
 (read-line)(terpri)
 
 (println "Now let's play human against minimax strategy/count-difference eval.") 
 (println "Enter a move of: resign to terminate the game.")
 (terpri)
-(othello #'human (minimax-searcher 3 #'count-difference))
+;(othello #'human (minimax-searcher 3 #'count-difference))
 (read-line)(terpri)
 
 (println "Finally we play human against alpha-beta strategy/count-difference eval.") 
 (println "Enter a move of: resign to terminate the game.")
 (terpri)
-(othello #'human (alpha-beta-searcher 3 #'count-difference))
+;(othello #'human (alpha-beta-searcher 3 #'count-difference))
 (read-line)(terpri)
 
 (undebug)
