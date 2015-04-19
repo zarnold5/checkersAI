@@ -34,6 +34,7 @@
 
 (defun bref (board square) (aref board square))
 (defsetf bref (board square) (val) 
+  (terpri)(terpri)
   `(setf (aref ,board ,square) ,val))
 
 (defun copy-board (board)
@@ -43,7 +44,7 @@
   (loop for i from 11 to 88 when (<= 1 (mod i 10) 8) collect i))
 
 (defun initial-board ()
-  "Return a board, empty except for four pieces in the middle."
+  "Return a board, with checkers in the correct positions"
   ;; Boards are 100-element vectors, with elements 11-88 used,
   ;; and the others marked with the sentinel OUTER.  Initially
   ;; the 4 center squares are taken, the others empty.
@@ -96,10 +97,8 @@
 
 (defun count-difference (player board)
   "Count player's pieces minus opponent's pieces."
-  (princ (count player board))
   (- (count player board)
-     (count (opponent player) board))
-  (princ 205))
+     (count (opponent player) board)))
 
 (defun valid-p (move)
   "Valid moves are numbers in the range 11-88 that end in 1-8."
@@ -121,46 +120,20 @@
 (defun make-move (move player board)
   "Update board to reflect move by player"
   ;; First make the move, then make any flips
-  (princ 2000)
   (setf (bref board move) player)
   (dolist (dir all-directions)
     (make-flips move player board dir))
   board)
 
 (defun make-move-checkers (piece move player board)
+  "moves a checker piece and if that move was a jump, removes opponent piece"
   (if (> (abs (- piece move)) 11)
       (progn (setf (bref board move) player) (setf (bref board piece) empty)(setf (bref board (+ piece (/ (- move piece) 2))) empty))
     (progn (setf (bref board move) player) (setf (bref board piece) empty)))
   board)
 
-(defun make-flips (move player board dir)
-  "Make any flips in the given direction."
-  (let ((bracketer (would-flip? move player board dir)))
-    (when bracketer
-      (loop for c from (+ move dir) by dir until (eql c bracketer)
-            do (setf (bref board c) player)))))
-
-(defun would-flip? (move player board dir)
-  "Would this move result in any flips in this direction?
-  If so, return the square number of the bracketing piece."
-  ;; A flip occurs if, starting at the adjacent square, c, there
-  ;; is a string of at least one opponent pieces, bracketed by 
-  ;; one of player's pieces
-  (let ((c (+ move dir)))
-    (and (eql (bref board c) (opponent player))
-         (find-bracketing-piece (+ c dir) player board dir))))
-
-(defun find-bracketing-piece (square player board dir)
-  "Return the square number of the bracketing piece."
-  (cond ((eql (bref board square) player) square)
-        ((eql (bref board square) (opponent player))
-         (find-bracketing-piece (+ square dir) player board dir))
-        (t nil)))
-
 (defun next-to-play (board previous-player print)
   "Compute the player to move next, or NIL if nobody can move."
-  ;(princ previous-player)
-  ;(update-pieces board)
   (let ((opp (opponent previous-player)))
     (cond ((any-legal-checkers? opp board) opp)
           ((any-legal-checkers? previous-player board) 
@@ -176,13 +149,11 @@
         all-squares))
 
 (defun any-legal-checkers? (player board)
-  "Does player have any legal moves in this position?"
-  (princ "any-legal-checkers?")(terpri)
+  "Does player have any legal moves in this position for the checkers game"
   (not (null (legal-moves player board))))
 
 (defun random-strategy (player board)
   "Make any legal move."
-  (princ "???")
   (princ player) (terpri)
   (progn (terpri)(princ ":")(princ  (apply88->h8 (legal-moves player board) ))(terpri) (random-elt (legal-moves player board))))
 
@@ -238,7 +209,6 @@
 ;;not first space
 (if (eq (bref board possibleSpace) (opponent player))
 (progn 
- (princ (bref board possibleSpace)) (princ (opponent player))
 (setq possibleSpace (+ possibleSpace diag2)) 
 (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() ))))
 ))))
@@ -247,6 +217,7 @@
 )
 
 (defun extra-jumps (origin loc jumps diag1 diag2 board player)
+  "function that checks for possible double jumps"
   (cond 
    ((and (legal-p piece (+ loc (* 2 diag1)) board) (eq (bref board (+ loc diag1)) (opponent player)))
     (extra-jumps origin (+ loc (* 2 diag1)) (cons (cons origin (+ loc (* 2 diag1))) jumps) diag1 diag2 board player))
@@ -277,16 +248,16 @@
         (elt moves (position best scores)))))
 
 (defparameter *weights*
-  '#(0   0   0  0  0  0  0   0   0 0
-     0 120 -20 20  5  5 20 -20 120 0
-     0 -20 -40 -5 -5 -5 -5 -40 -20 0
-     0  20  -5 15  3  3 15  -5  20 0
-     0   5  -5  3  3  3  3  -5   5 0
-     0   5  -5  3  3  3  3  -5   5 0
-     0  20  -5 15  3  3 15  -5  20 0
-     0 -20 -40 -5 -5 -5 -5 -40 -20 0
-     0 120 -20 20  5  5 20 -20 120 0
-     0   0   0  0  0  0  0   0   0 0))
+  '#(0 0 0 0 0 0 0 0 0 0
+     0 4 0 4 0 4 0 4 0 0
+     0 0 3 0 3 0 3 0 4 0
+     0 4 0 2  0  2 0 3 0 
+     0 0 3 0 1 0 2 0 4 0
+     0 4 0 2 0 1 0 3 0 0
+     0 0 3 0 2 0 2 0 4 0
+     0 4 0 3 0 3 0 3 0 0 
+     0 0 4 0 4 0 4 0 4 0 
+     0 0 0 0 0 0 0 0 0 0))
 
 (defun weighted-squares (player board)
   "Sum of the weights of player's squares minus opponent's."
@@ -418,6 +389,7 @@
         num)))
 
 (defun apply88->h8 (assoc)
+  "applies 88->h8 to a list of possible moves"
 	(if (null assoc) nil
 	    (cons (cons (88->h8 (car (car assoc))) (88->h8 (cdr (car assoc)))) (apply88->h8 (cdr assoc))))
 )
@@ -428,15 +400,15 @@
 )
 
 (defun 88->h8m (assoc) 
+  "applies 88->h8 to a move (which is a dotted pair)"
   (cons (88->h8 (car assoc)) (88->h8 (cdr assoc))))
-
 
 (defun handle-input (in)
   (progn
-	 (princ (applyh8->88 in))
 	 (applyh8->88 in)))
 
 (defun contains (ele list)
+  "checks if a dotted pair is in a list of dotted pairs"
   (cond ((null list) nil)
 	((and (eq (car ele) (caar list)) (eq (cdr ele) (cdar list))) t)
 	(t (contains ele (cdr list)))))
@@ -449,9 +421,9 @@
 
 (defvar *move-number* 1 "The number of the move to be played")
 
-(defun othello (bl-strategy wh-strategy 
+(defun checkers (bl-strategy wh-strategy 
                 &optional (print t) (minutes 30))
-  "Play a game of othello.  Return the score, where a positive
+  "Play a game of checkers.  Return the score, where a positive
   difference means black, the first player, wins."
   (let ((board (initial-checkers-board))
         (clock (make-array (+ 1 (max black red))
@@ -512,9 +484,6 @@
        ;(update-pieces)
        (make-move-checkers (car move) (cdr move) player board))
       (t (warn "Illegal move: ~a" (88->h8 move))
-	 ;(princ valid-p move) (terpri) (princ legal-p move player board)
-	 (princ (valid-pc move))
-	 (princ (legal-p (cdr move) player board))
          (get-move strategy player board print clock)))))
 
 (defun print-board (&optional (board *board*) clock)
@@ -616,36 +585,21 @@
 (println "**********************")
 (terpri)
 
-(println "Let's play some abbreviated games of Othello tracing the computer's strategy")
+(println "Let's play some abbreviated games of Checkers tracing the computer's strategy")
 (println "We will start by playing against the random selection strategy.") 
 (println "Enter a move of: resign to terminate the game.")
 (terpri)
 
-(debug2 :othello)
-;(othello #'random-strategy #'random-strategy)
+(debug2 :checkers)
+(checkers #'random-strategy #'random-strategy)
 ;(othello #'human #'random-strategy)
 (read-line)(terpri)
 
 
-(println "Now let's play human against maximizer strategy/count-difference eval.") 
+(println "Now let's play random against maximizer strategy/count-difference eval.") 
 (println "Enter a move of: resign to terminate the game.")
 (terpri)
-(othello #'human (maximizer #'count-difference))
-(read-line)(terpri)
-
-(println "Now let's play human against minimax strategy/count-difference eval.") 
-(println "Enter a move of: resign to terminate the game.")
-(terpri)
-;(othello #'human (minimax-searcher 3 #'count-difference))
-(read-line)(terpri)
-
-(println "Finally we play human against alpha-beta strategy/count-difference eval.") 
-(println "Enter a move of: resign to terminate the game.")
-(terpri)
-;(othello #'human (alpha-beta-searcher 3 #'count-difference))
-(read-line)(terpri)
-
-(undebug)
+(checkers #'random-strategy (maximizer #'count-difference))
 
 
 (terpri)
