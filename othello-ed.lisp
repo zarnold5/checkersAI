@@ -182,6 +182,7 @@
 )
 
 (defun getmoves (piece player board)
+"helper function which determines the diagonals to check given the current player"
   (if (eq player 2)
       (collectmoves piece -11 -9 board player)
       (collectmoves piece 9 11 board player)
@@ -189,6 +190,7 @@
 )
 
 (defun collectmoves (piece diag1 diag2 board player)
+"This function actually checks along the appropriate diagonals for all pieces of a given player"
   (setq temp '())
   (setq possibleSpace piece)
 
@@ -196,7 +198,7 @@
     (progn
     (setq possibleSpace (+ piece diag1))
     (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() )))
-      ;;not empty right in front check next space!
+      ;;not empty right in front check next space for a possible jump!
       (if (eq (bref board possibleSpace) (opponent player)) 
 (progn 
 (setq possibleSpace (+ possibleSpace diag1)) 
@@ -206,7 +208,7 @@
 
     (setq possibleSpace (+ piece diag2))
     (if (legal-p piece possibleSpace board) (setq temp (append temp (cons (cons piece possibleSpace) '() )))
-;;not first space
+;;not first space check next space for a possible jump
 (if (eq (bref board possibleSpace) (opponent player))
 (progn 
 (setq possibleSpace (+ possibleSpace diag2)) 
@@ -395,7 +397,7 @@
 )
 
 (defun applyh8->88 (assoc)
-  "NEEDS WORK"
+  "applies h8->88 to a dotted pair (move)"
 	(cons (h8->88 (car assoc)) (h8->88 (cdr assoc)))
 )
 
@@ -586,20 +588,19 @@
 (terpri)
 
 (println "Let's play some abbreviated games of Checkers tracing the computer's strategy")
-(println "We will start by playing against the random selection strategy.") 
-(println "Enter a move of: resign to terminate the game.")
+(println "We will start by displaying a random strategy versus our AI strategy.") 
 (terpri)
 
 (debug2 :checkers)
-(checkers #'random-strategy #'random-strategy)
+(checkers #'random-strategy (maximizer #'count-difference))
 ;(othello #'human #'random-strategy)
-(read-line)(terpri)
+(terpri)
 
 
-(println "Now let's play random against maximizer strategy/count-difference eval.") 
+(println "Now let's see how you do!.") 
 (println "Enter a move of: resign to terminate the game.")
 (terpri)
-(checkers #'random-strategy (maximizer #'count-difference))
+(checkers #'human (maximizer #'count-difference))
 
 
 (terpri)
@@ -610,3 +611,4 @@
 
 
 
+x
